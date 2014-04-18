@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry}
+
+\title{ECE 7630 Semester Project Proposal: \\ Wavelet-Based Compressive Sensing}
+\author{Josh Hunsaker and David Neal}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Many traditional sensor systems capture large amounts of data and then compress the data for transmission or storage purposes.  Compressive sensing provides an approach for combining the sensing and compressing stages into a single step.  This can provide both cost and efficiency benefits in sensor hardware. In the context of digital image processing, this can provide a way to capture a significantly reduced number of pixels while maintaining the ability to reconstruct the complete image later. Such reconstruction techniques require the use of a basis in which the image is sparse. One common approach is to use wavelet transforms as the basis for the image.
+
+The wavelet transform of most natural images exhibits a ``zero tree'' structure in which the ``children'' of negligible coefficients tend to be negligible as well. In \cite{He09}, the authors develop a statistical algortihm which exploits the zero-tree phenomenon to achieve increased reconstruction accuracy. By imposing a set of Bayesian priors on the wavelet coefficients, the expected structure is imposed statistically, which leads to a more flexible image model.
+
+\section{Proposed Project}
+
+We propose working through the paper and reproducing the results. The goals of the project are as follows:
+
+\begin{itemize}
+\item Design a set of compressive-sensing projection vectors
+\item Implement the Haar wavelet transform
+\item Develop a hierarchical Bayesian model for \emph{a priori} estimation of coefficients
+\item Create a Markov Chain Monte Carlo (MCMC) inference engine
+\item Test the results on a large variety of images and compare the results to those presented
+\item Present theory, implementation, and results to the class
+\end{itemize}
+
+\bibliography{proposal}
+\bibliographystyle{IEEEtran}
+
+\end{document}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
