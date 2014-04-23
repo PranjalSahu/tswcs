@@ -40,7 +40,7 @@ check =  pick < pi; % creates a vector of 1s and zeros
 theta = check.*(mu+diag(1./alpha)*randn(N,1));
 % Update alpha(s,i)
 for iter = 1:N
-    alpha(iter) = alpha(scaling(iter,1))+alphan*phi(:,iter).'*phi(:,iter);
+    alpha(iter) = alpha(scaling(iter,1)+1)+alphan*phi(:,iter).'*phi(:,iter); % +1 to account for s = 0
 end
 % Update mu(s,i)
 for iter = 1:N
@@ -56,7 +56,7 @@ end
 % Draw and calculate intermediate pi value = A
 % calculate pi = A/(1+A) (verify) to update pi
 for iter = 1:N
-    temp1 = pi_s(iter)*1/sqrt(alphas(scaling(iter,1)))*randn(1);
+    temp1 = pi_s(iter)*1/sqrt(alphas(scaling(iter,1)+1))*randn(1);% +1 to account for s = 0
     temp2 = (1-pi_s(iter))*(mu(iter)+1/sqrt(alpha(iter))*randn(1));
     temp3 = temp1/temp2;
     pi(iter) = temp3/(1+temp3);
@@ -98,7 +98,7 @@ er = temp1 + betacoeffs(1);
 fr = temp2 + betacoeffs(2);
 pi_s(5) = betarnd(er,fr);
 % draw for pi^0(s) and draw for pi^1(s)
-count = 0;
+count = 16;
 temppi = zeros(smax,2);
 for iter = 2:smax
     temp1 = 0;
@@ -106,7 +106,6 @@ for iter = 2:smax
     temp3 = 0;
     temp4 = 0;
     for jiter = 1:Ms(iter)
-
         if theta(count+jiter) == 0
             if theta(scaling(count+jiter,2)) == 0
                 temp3 = temp3 +1;
