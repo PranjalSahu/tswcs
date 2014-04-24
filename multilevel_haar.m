@@ -7,7 +7,7 @@ function [V, Psi, P] = multilevel_haar(U,s);
     IN2 = speye(N2);          % A N^2 x N^2 identity matrix
     I2 = speye(2);            % A 2x2 identity matrix
 
-    Psi = IN2;                % The complete wavelet transform as a matrix
+    Psi = IN2;                % The complete wavelet basis matrix
     P = IN2;                  % The complete permutation matrix
 
     % Perform a multilevel wavelet decomposition by iterating over each level
@@ -17,12 +17,12 @@ function [V, Psi, P] = multilevel_haar(U,s);
         I = speye(n/2);       % An n/2 x n/2 identity matrix
         
         % Generate a 1-D Haar wavelet transform matrix of size n x n
-        A = 0.5*[ kron(I,[1,  1]); ...
-                  kron(I,[1, -1])  ];
+        A = 1/sqrt(2)*[ kron(I,[1,  1]); ...
+                        kron(I,[1, -1])  ];
 
         % Convert the 1-D transform matrix to a 2-D transform of
         % size n^2 x n^2 which operates on the vectorized 2-D image
-        Psi_n = kron(A,A);
+        Psi_n = kron(A',A');
 
         % Create a block matrix which allows us to apply the transform to only
         % the current sub-image, located at the top-left of the matrix
@@ -30,7 +30,7 @@ function [V, Psi, P] = multilevel_haar(U,s);
         Psi_n_N(1:n2,1:n2) = Psi_n;
         
         % Apply the transform to the image
-        v = Psi_n_N*v;
+        v = Psi_n_N'*v;
         
         % Rearrange the transformed sub image to group the four coefficient
         % groups (ie Approximation, Horizontal, Vertical, and Diagonal) together
@@ -45,7 +45,7 @@ function [V, Psi, P] = multilevel_haar(U,s);
         v = P_n_N*v;
         
         % Update Psi and P
-        Psi = P_n_N * Psi_n_N * Psi;
+        Psi = Psi * Psi_n_N * P_n_N';
         P = P_n_N * P;
 
     end
@@ -54,6 +54,6 @@ function [V, Psi, P] = multilevel_haar(U,s);
     V = reshape(P'*v, N, []);
     
     % Remove the permutations from the Psi matrix
-    Psi = P'*Psi;
+    Psi = Psi*P;
 
 end
