@@ -77,13 +77,13 @@ for iter = 1:(N/4) % No children for last level
         col = 1;
     end
 end
-scaling(N/4+1:end) = 6;
+scaling(N/4+1:end,1) = 6;
 % Other Initialization?
 
 % Main algorithm
 % Sample Image
 load test_images
-[V, Psi, P] = multilevel_haar(test_image{1},1);
+[V, Psi, P] = multilevel_haar(test_image{4},1);
 theta_true = P*V(:);
 v = phi*theta_true;
 
@@ -97,7 +97,7 @@ theta(1:explicit_coeffs) = v(1:explicit_coeffs);
 % Loop for Bayesian model (use compinference call here)
 
 
-L = 25;
+L = 20;
 mse = zeros(L,1);
 h_waitbar = waitbar(0,'Bayesian Inference...');
 

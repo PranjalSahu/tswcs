@@ -6,6 +6,7 @@ function [V, Psi, P] = multilevel_haar(U,s);
     N2 = N^2;                 % Length of the image vector
     IN2 = speye(N2);          % A N^2 x N^2 identity matrix
     I2 = speye(2);            % A 2x2 identity matrix
+    I4 = speye(2);            % A 4x4 identity matrix
 
     Psi = IN2;                % The complete wavelet basis matrix
     P = IN2;                  % The complete permutation matrix
@@ -34,7 +35,9 @@ function [V, Psi, P] = multilevel_haar(U,s);
         
         % Rearrange the transformed sub image to group the four coefficient
         % groups (ie Approximation, Horizontal, Vertical, and Diagonal) together
-        P_n = kron(I2,kron([kron(I,[1 0]);kron(I,[0 1])],I));
+        pn = kron(kron(I2,I),kron([1 0],I));
+        P_n =  vertcat(pn,rot90(pn,2));
+        % P_n = kron(I2,kron([kron(I,[1 0]);kron(I,[0 1])],I));
 
         % Create a block matrix which allows us to apply the permutation to only
         % the current sub-image, located at the top-left of the matrix
