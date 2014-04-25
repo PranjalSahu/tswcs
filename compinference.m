@@ -1,4 +1,4 @@
-function [ theta, pi, pi_s,  mu, alpha, alphas, alphan, delta ] = compinference( theta, pi, pi_s, mu, alpha, alphas, phi, alphan, v, scaling, gamcoeffs, Ms, betacoeffs)
+function [ theta, pi, pi_s,  mu, alpha, alphas, alphan ] = compinference( theta, pi, pi_s, mu, alpha, alphas, phi, alphan, v, scaling, gamcoeffs, Ms, betacoeffs)
 %compinference This function implements the MCMC inference model for
 %zero-tree compressive sensing.  It only runs a single loop, so iterations
 %must be run in the code outside the function
@@ -35,23 +35,22 @@ smax = max(scaling(:,1));
 
 % Draw for theta(s,i)
 pick = rand(N,1); % draws for which distribution to use
-check =  pick < pi; % creates a vector of 1s and zeros
+check =  pick < pi.'; % creates a vector of 1s and zeros
 % use the 1s to use the non-zero distribution and the zeros to pick the zero distribution
-theta = check.*(mu+diag(1./alpha)*randn(N,1));
+theta = check.*(mu.'+diag(1./alpha)*randn(N,1));
 % Update alpha(s,i)
 for iter = 1:N
-    alpha(iter) = alpha(scaling(iter,1)+1)+alphan*phi(:,iter).'*phi(:,iter); % +1 to account for s = 0
+    alpha(iter) = alphas(scaling(iter,1)+1)+alphan*phi(:,iter).'*phi(:,iter); % +1 to account for s = 0
 end
 % Update mu(s,i)
+sum = 0;
+for jiter = 1:N
+    sum = sum + phi(:,jiter)*theta(jiter);
+end
 for iter = 1:N
-    sum = 0;
-    for jiter = 1:N
-        if jiter ~=iter
-            sum = sum + phi(:,jiter)*theta(jiter);
-        end
-    end
-    vhat = v-sum;
-    mu = 1/alpha(iter)*alphan*phi(:,iter).'*vhat;
+    tempsum = sum - phi(:,iter)*theta(iter);
+    vhat = v-tempsum;
+    mu(iter) = 1/alpha(iter)*alphan*phi(:,iter).'*vhat;
 end
 % Draw and calculate intermediate pi value = A
 % calculate pi = A/(1+A) (verify) to update pi
@@ -63,7 +62,7 @@ for iter = 1:N
 end
 % draw for alpha(s)
 count = 0;
-for iter = 1:smax
+for iter = 1:smax+1
     temp1 = 0;
     temp3 = 0;
     for jiter = 1:Ms(iter)
@@ -99,7 +98,7 @@ fr = temp2 + betacoeffs(2);
 pi_s(5) = betarnd(er,fr);
 % draw for pi^0(s) and draw for pi^1(s)
 count = 16;
-temppi = zeros(smax,2);
+temppi = zeros(smax+1,2);
 for iter = 2:smax
     temp1 = 0;
     temp2 = 0;
@@ -136,18 +135,20 @@ for iter = 5:16
 end
 stemp = 2;
 count = 48;
+start = 16;
 for iter = 17:N
     if theta(scaling(iter,2)) == 0
         pi_s(iter) = temppi(stemp,1);
     else
         pi_s(iter) = temppi(stemp,2);
     end
-    if iter == 17+count
+    if iter == start+count
+        start = start+count;
         count = count*4;
         stemp = stemp+1;
     end
 end
 % draw for alphan
-alphan = gammarnd(gamcoeffs(1)+N/2,gamcoeffs(2)+(v0-phi*theta).'*(v-phi*theta)/2);
+alphan = gamrnd(gamcoeffs(1)+N/2,gamcoeffs(2)+(v-phi*theta).'*(v-phi*theta)/2);
 end
 
