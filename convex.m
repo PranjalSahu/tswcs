@@ -1,7 +1,7 @@
 clear all; close all;
 
-load lenna
-U = double(lenna128)/256-0.5;
+load test_images
+U = double(test_image{4})/256-0.5;
 u = U(:);
 N = length(u);
 
@@ -24,7 +24,6 @@ cvx_begin
 cvx_end
 
 display('Complete!')
-% X = reshape(x,size(U));
-% showme(X);
+
 T = reshape(t,size(U));
-showme
+showme(T)
