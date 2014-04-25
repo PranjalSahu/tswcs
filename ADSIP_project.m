@@ -2,13 +2,14 @@
 % This is the top level script to run compressive sensing with wavelet
 % transforms, zero-tree structure exploitation, and Bayesian estimation
 % using Gibbs sampling
+clear all;
 
 % Initialize values
-gamcoeffs = 10^-6*[1 1 1 1];
-betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 1];
 smax = 6; % set for scaling calculation below; if not used elsewhere, move there
 M0 = 4; % set for scaling calculation below; if not used elsewhere, move there
 Msvec = [4 3*4.^(1:smax)];
+gamcoeffs = 10^-6*[1 1 1 1];
+betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 1];
 %number of elements
 % Read in picture
 % Picture Size
@@ -75,16 +76,49 @@ for iter = 1:(N/4) % No children for last level
         col = 1;
     end
 end
+scaling(N/4+1:end) = 6;
 % Other Initialization?
 
 % Main algorithm
 % Sample Image
-v = 2*randn(6000,1);
+load test_images
+[V, Psi, P] = multilevel_haar(test_image{1},1);
+v = phi*P*V(:);
+
 % Initialize values for bayesian model (theta, pi, alpha, etc, se inputs to compinference
 theta = randn(sum(Msvec),1);
-[pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, gamcoeffs, Msvec, betacoeffs);
+[pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, ...
+                                                  gamcoeffs, Msvec, ...
+                                                  betacoeffs);
+
 % Loop for Bayesian model (use compinference call here)
-[theta, pi, pi_s,  mu, alpha, alphas, alphan] = compinference(theta, pi, pi_s, mu, alpha, alphas, phi, alphan, v, scaling, gamcoeffs, Msvec, betacoeffs);
+
+
+L = 10;
+mse = zeros(L,1);
+h_waitbar = waitbar(0,'Bayesian Inference...');
+
+for l = 1:L
+    waitbar(l/L,h_waitbar,'Bayesian Inference...');
+
+    old_theta = theta;
+    [theta, pi, pi_s,  mu, alpha, alphas, alphan] = compinference(theta, pi, pi_s, ...
+                                                      mu, alpha, alphas, phi, alphan, ...
+                                                      v, scaling, gamcoeffs, Msvec, ...
+                                                      betacoeffs);
+    mse(l) = norm(old_theta-theta);
+end
+
+close(h_waitbar);
+
+figure(1); clf;
+subplot(2,2,1);
+showme(reshape(P.'*significant(theta,0.05),128,[]));
+subplot(2,2,2);
+showme(reshape(transform(Psi,P.'*theta),128,[]));
+subplot(2,2,3);
+plot(mse);
+
 % Inverse transform converged estimate
 % Reorder with permutations (may be combined with above step)
 % Generate Picture comparison (original vs our reconstructed)
