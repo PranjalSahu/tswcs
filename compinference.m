@@ -22,7 +22,7 @@ function [ theta, pi, pi_s,  mu, alpha, alphas, alphan ] = compinference( theta,
 %   gamcoeffs - 4x1 vector with [a0, b0, c0, d0] in it for the gamma
 %   distributions
 %   Ms is the passed in sizes of the different scales in order.
-%   betacoeffs - 8x1 vector with [e0r,f0r, e0s0,f0s0,e0s1,f0s1,e0sc,f0sc] in it for
+%   betacoeffs - 8x1 vector with [e0r,f0r, e0s0,f0s0,e0s1,f0s1,e0sc,explicit_coeffs] in it for
 %   the beta distributions
 
 
@@ -37,7 +37,8 @@ smax = max(scaling(:,1));
 pick = rand(N,1); % draws for which distribution to use
 check =  pick < pi; % creates a vector of 1s and zeros
 % use the 1s to use the non-zero distribution and the zeros to pick the zero distribution
-theta = check.*(mu+diag(1./alpha)*randn(N,1));
+theta = check.*(mu+randn(N,1)./sqrt(alpha));
+theta(1:betacoeffs(8)) = v(1:betacoeffs(8));
 
 % Update alpha(s,i)
 alpha = alphas(scaling(:,1)+1) + alphan*sum(phi.*phi,1).';
@@ -54,6 +55,7 @@ temp1 = pi_s./sqrt(alphas(scaling(:,1)+1)).*randn(N,1); % +1 to account for s = 
 temp2 = (1-pi_s).*(mu+1./sqrt(alpha).*randn(N,1));
 temp3 = temp1./temp2;
 pi = temp3./(1+temp3);
+pi(1:4) = 1;
 
 temp3 = 0;
 cin = 2+gamcoeffs(3);
@@ -83,7 +85,7 @@ for iter = 2:smax+1
     alphas(iter) = gamrnd(cin,din);
 end
 % draw for pi(sc)
-pi_s(1) = 1; %betarnd(betacoeffs(7),betacoeffs(8));
+% pi_s(1) = 1; %betarnd(betacoeffs(7),betacoeffs(8));
 % draw for pi(r)
 temp1 = 0;
 temp2 = 0;
@@ -126,7 +128,7 @@ for iter = 1:smax-1
     temppi(iter,2) = betarnd(e1*Ms(iter+2),f1*Ms(iter+2));
 end
 % assign value locations for the different pi into pi_s
-pi_s(2:4) = pi_s(1);
+% pi_s(2:4) = pi_s(1);
 pi_s(6:16) = pi_s(5);
 
 stemp = 2;

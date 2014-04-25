@@ -1,9 +1,17 @@
-function Phi = sampling_matrix(M,N)
+function Phi = sampling_matrix(M,N,s)
 
     Phi = zeros(M,N);
-
-    for n = 1:N
-        Phi(:,n) = 2*floor(2*rand(M,1))-1;
+    Phi(1:s,1:s) = eye(s);
+    
+    for n = s+1:N
+        Phi(s+1:M,n) = round(1.2*rand(M-s,1)+0.4)-1;
+        
     end
+    % Phi = zeros(M,N);
+    % Phi(1:s,1:s) = eye(s);
+    
+    % for n = s+1:N
+    %     Phi(s+1:M,n) = 2*floor(2*rand(M-s,1))-1;
+    % end
 
 end

@@ -42,7 +42,7 @@ for iter = 2:smax+1
     alphas(iter) = gamrnd(cin,din);
 end
 % draw for pi(sc)
-pi_s(1) = 1; %betarnd(betacoeffs(7),betacoeffs(8));
+% pi_s(1) = 1; %betarnd(betacoeffs(7),betacoeffs(8));
 % draw for pi(r)
 temp1 = 0;
 temp2 = 0;
@@ -85,7 +85,7 @@ for iter = 1:smax-1
     temppi(iter,2) = betarnd(e1*Ms(iter+2),f1*Ms(iter+2));
 end
 % assign value locations for the different pi into pi_s
-pi_s(2:4) = pi_s(1);
+% pi_s(2:4) = pi_s(1);
 pi_s(6:16) = pi_s(5);
 
 stemp = 2;
@@ -125,7 +125,7 @@ temp1 = pi_s./sqrt(alphas(scaling(:,1)+1)).*randn(N,1); % +1 to account for s = 
 temp2 = (1-pi_s).*(mu+1./sqrt(alpha).*randn(N,1));
 temp3 = temp1./temp2;
 pi = temp3./(1+temp3);
-
+pi(1:4) = 1;
 end
 
 

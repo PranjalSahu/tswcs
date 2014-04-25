@@ -9,14 +9,15 @@ smax = 6; % set for scaling calculation below; if not used elsewhere, move there
 M0 = 4; % set for scaling calculation below; if not used elsewhere, move there
 Msvec = [4 3*4.^(1:smax)];
 gamcoeffs = 10^-6*[1 1 1 1];
-betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 1];
+explicit_coeffs = 4;
+betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 explicit_coeffs];
 %number of elements
 % Read in picture
 % Picture Size
 % Create Psi Matrix (Wavelet Transform)
 % Create Permutation Matrices
 % Create Phi Matrix (Sampling Matrix)
-phi = sampling_matrix(6000,sum(Msvec));
+phi = sampling_matrix(2000,sum(Msvec),explicit_coeffs);
 % Add option here to directly sample "DC" coefficients?
 % QUESTION: Do we want to be able to run both simultaneously?
 % Combine Wavelet and Sampling matrices
@@ -83,10 +84,12 @@ scaling(N/4+1:end) = 6;
 % Sample Image
 load test_images
 [V, Psi, P] = multilevel_haar(test_image{1},1);
-v = phi*P*V(:);
+theta_true = P*V(:);
+v = phi*theta_true;
 
 % Initialize values for bayesian model (theta, pi, alpha, etc, se inputs to compinference
-theta = randn(sum(Msvec),1);
+theta = (-2 + 3*randn(sum(Msvec),1)).*(rand(N,1) < 0.5);
+theta(1:explicit_coeffs) = v(1:explicit_coeffs);
 [pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, ...
                                                   gamcoeffs, Msvec, ...
                                                   betacoeffs);
@@ -94,7 +97,7 @@ theta = randn(sum(Msvec),1);
 % Loop for Bayesian model (use compinference call here)
 
 
-L = 10;
+L = 25;
 mse = zeros(L,1);
 h_waitbar = waitbar(0,'Bayesian Inference...');
 
@@ -106,7 +109,7 @@ for l = 1:L
                                                       mu, alpha, alphas, phi, alphan, ...
                                                       v, scaling, gamcoeffs, Msvec, ...
                                                       betacoeffs);
-    mse(l) = norm(old_theta-theta);
+    mse(l) = norm(theta_true-theta);
 end
 
 close(h_waitbar);
@@ -117,6 +120,8 @@ showme(reshape(P.'*significant(theta,0.05),128,[]));
 subplot(2,2,2);
 showme(reshape(transform(Psi,P.'*theta),128,[]));
 subplot(2,2,3);
+showme(reshape(P.'*theta,128,[]));
+subplot(2,2,4);
 plot(mse);
 
 % Inverse transform converged estimate
