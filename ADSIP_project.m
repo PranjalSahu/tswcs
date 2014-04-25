@@ -4,8 +4,8 @@
 % using Gibbs sampling
 
 % Initialize values
-gamcoeffs = [0 0 0 0];
-betacoeffs = [0 0 0 0 0 0 0 0];
+gamcoeffs = 10^-6*[1 1 1 1];
+betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 1];
 smax = 6; % set for scaling calculation below; if not used elsewhere, move there
 M0 = 4; % set for scaling calculation below; if not used elsewhere, move there
 Msvec = [4 3*4.^(1:smax)];
@@ -81,7 +81,7 @@ end
 % Sample Image
 v = 2*randn(6000,1);
 % Initialize values for bayesian model (theta, pi, alpha, etc, se inputs to compinference
-theta = zeros(sum(Msvec),1);
+theta = randn(sum(Msvec),1);
 [pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, gamcoeffs, Msvec, betacoeffs);
 % Loop for Bayesian model (use compinference call here)
 [theta, pi, pi_s,  mu, alpha, alphas, alphan] = compinference(theta, pi, pi_s, mu, alpha, alphas, phi, alphan, v, scaling, gamcoeffs, Msvec, betacoeffs);

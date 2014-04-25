@@ -17,7 +17,7 @@ for iter = 1:smax+1
         if theta(count+jiter) == 0
             temp2 = 0;
         else
-            temp2 = 0;
+            temp2 = 1;
         end
         temp1 = temp1+temp2;
         temp3 = temp3+theta(count+jiter)^2;
@@ -28,7 +28,7 @@ for iter = 1:smax+1
     alphas(iter) = gamrnd(cin,din);
 end
 % draw for pi(sc)
-pi(1) = betarnd(betacoeffs(7),betacoeffs(8));
+pi_s(1) = 1; %betarnd(betacoeffs(7),betacoeffs(8));
 % draw for pi(r)
 temp1 = 0;
 temp2 = 0;
@@ -71,14 +71,14 @@ for iter = 2:smax
     f0 = betacoeffs(4) + temp2;
     e1 = betacoeffs(5) + temp3;
     f1 = betacoeffs(6) + temp4;
-    temppi(iter,1) = betarnd(e0,f0);
-    temppi(iter,2) = betarnd(e1,f1);
+    temppi(iter,1) = betarnd(e0*Ms(iter),f0*Ms(iter));
+    temppi(iter,2) = betarnd(e1*Ms(iter),f1*Ms(iter));
 end
 % assign value locations for the different pi into pi_s
 for iter = 2:4
     pi_s(iter) = pi_s(1);
 end
-for iter = 5:16
+for iter = 6:16
     pi_s(iter) = pi_s(5);
 end
 stemp = 2;
