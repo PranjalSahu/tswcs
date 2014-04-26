@@ -1,0 +1,40 @@
+\documentclass{IEEEtran}
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry}
+
+\title{Tree-Structured Wavelet Compressive Sensing}
+
+%\subtitle{Based on a Paper by Lihan He and Lawrence Carin}
+
+\author{David A. Neal and  Josh Hunsaker}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This is the most rockin-est project this side of the rio grande
+\end{abstract}
+
+\section{Introduction}
+
+Many traditional sensor systems capture large amounts of data and then compress the data for transmission or storage purposes.  Compressive sensing provides an approach for combining the sensing and compressing stages into a single step.  This can provide both cost and efficiency benefits in sensor hardware. In the context of digital image processing, this can provide a way to capture a significantly reduced number of pixels while maintaining the ability to reconstruct the complete image later. Such reconstruction techniques require the use of a basis in which the image is sparse. One common approach is to use wavelet transforms as the basis for the image.
+
+The wavelet transform of most natural images exhibits a ``zero tree'' structure in which the ``children'' of negligible coefficients tend to be negligible as well. In \cite{He09}, the authors develop a statistical algortihm which exploits the zero-tree phenomenon to achieve increased reconstruction accuracy. By imposing a set of Bayesian priors on the wavelet coefficients, the expected structure is imposed statistically, which leads to a more flexible image model.
+
+\section{Compressive Sensing and Wavelet Transform}
+
+\section{Wavelet Tree Structure}
+
+\section{Bayesian Inference}
+
+\bibliography{report}
+\bibliographystyle{IEEEtran}
+
+\end{document}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
