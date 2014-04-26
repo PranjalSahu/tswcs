@@ -8,9 +8,10 @@ clear all;
 smax = 6; % set for scaling calculation below; if not used elsewhere, move there
 M0 = 4; % set for scaling calculation below; if not used elsewhere, move there
 Msvec = [4 3*4.^(1:smax)];
+N = sum(Msvec);
 gamcoeffs = 10^-6*[1 1 1 1];
 explicit_coeffs = 4;
-betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 explicit_coeffs];
+betacoeffs = [.9*Msvec(2) .1* Msvec(2) 1/N 1-1/N .5 .5 1 explicit_coeffs];
 %number of elements
 % Read in picture
 % Picture Size
@@ -18,6 +19,14 @@ betacoeffs = [.9*12 .1*12 1/sum(Msvec) 1-1/sum(Msvec) .5 .5 1 explicit_coeffs];
 % Create Permutation Matrices
 % Create Phi Matrix (Sampling Matrix)
 phi = sampling_matrix(2000,sum(Msvec),explicit_coeffs);
+% pperm = randperm(sum(Msvec),2000);
+% Phitemp = zeros(N);
+% jiter = 1:N;
+% Phitemp(1,:) = 1/sqrt(N)*cos(3.14159*(1-1)*(2*jiter-1)/(2*N)).';
+% iter = 2:N;
+% Phitemp(2:end,:) = sqrt(2)/sqrt(N)*cos(3.14159*bsxfun(@times,(iter-1).',(2*jiter-1))/(2*N));
+% phi = Phitemp(pperm,:);
+
 % Add option here to directly sample "DC" coefficients?
 % QUESTION: Do we want to be able to run both simultaneously?
 % Combine Wavelet and Sampling matrices
@@ -85,19 +94,24 @@ scaling(N/4+1:end,1) = 6;
 load test_images
 [V, Psi, P] = multilevel_haar(test_image{4},1);
 theta_true = P*V(:);
-v = phi*theta_true;
+figure
+plot(theta_true)
+v = phi*theta_true;%+5*randn(2000,1);
 
 % Initialize values for bayesian model (theta, pi, alpha, etc, se inputs to compinference
-theta = (-2 + 3*randn(sum(Msvec),1)).*(rand(N,1) < 0.5);
+theta = ([200*ones(60,1);20*ones(N-60,1)].*randn(N,1)).*(rand(N,1) < 0.2);
+%theta = theta_true;
 theta(1:explicit_coeffs) = v(1:explicit_coeffs);
-[pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, ...
+figure
+plot(theta)
+[theta, pi, pi_s, mu, alpha, alphas, phi, alphan] = initialize(theta, v, phi, scaling, ...
                                                   gamcoeffs, Msvec, ...
                                                   betacoeffs);
 
 % Loop for Bayesian model (use compinference call here)
 
 
-L = 20;
+L = 200;
 mse = zeros(L,1);
 h_waitbar = waitbar(0,'Bayesian Inference...');
 
@@ -109,11 +123,32 @@ for l = 1:L
                                                       mu, alpha, alphas, phi, alphan, ...
                                                       v, scaling, gamcoeffs, Msvec, ...
                                                       betacoeffs);
-    mse(l) = norm(theta_true-theta);
+    mse(l) = norm(old_theta-theta);
 end
 
 close(h_waitbar);
+h_waitbar = waitbar(0,'Sampling Theta...');
+samplestot = 100;
+thetatot = 0;
+for l = 1:samplestot
+    waitbar(l/samplestot,h_waitbar,'Sampling Theta...');
 
+    % Draw for theta(s,i)
+    pick = rand(N,1); % draws for which distribution to use
+    check =  pick < pi; % creates a vector of 1s and zeros
+    % use the 1s to use the non-zero distribution and the zeros to pick the zero distribution
+    theta = check.*(mu+randn(N,1)./sqrt(alpha));
+    theta(1:betacoeffs(8)) = v(1:betacoeffs(8));
+    
+    %[theta, pi, pi_s,  mu, alpha, alphas, alphan] = compinference(theta, pi, pi_s, ...
+    %                                                  mu, alpha, alphas, phi, alphan, ...
+    %                                                  v, scaling, gamcoeffs, Msvec, ...
+    %                                                  betacoeffs);
+    thetatot = thetatot+theta;
+end
+close(h_waitbar);
+theta = thetatot/samplestot;
+finalerror = norm(theta_true-theta)
 figure(1); clf;
 subplot(2,2,1);
 showme(reshape(P.'*significant(theta,0.05),128,[]));

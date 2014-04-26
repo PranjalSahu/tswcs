@@ -1,6 +1,7 @@
 function [V, Psi, P] = multilevel_haar(U,s);
 
-    v = double(U(:))/256-0.5; % Vectorize and normalize the image
+    v = (double(U(:))/2); % Vectorize and normalize the image ADDED SCALING HERE
+    %v = double(U(:));
     N = length(U);            % Get the dimension of the image
 
     N2 = N^2;                 % Length of the image vector
