@@ -1,13 +1,18 @@
 \documentclass{IEEEtran}
 \usepackage{parskip}
-\usepackage[margin=1in]{geometry}
+% \usepackage[margin=1in]{geometry}
+
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfv}{\mathbf{v}}
+\newcommand{\bfpsi}{\mathbf{\psi}}
+\newcommand{\bftheta}{\mathbf{\theta}}
+
+
 
 \title{Tree-Structured Wavelet Compressive Sensing}
 
-%\subtitle{Based on a Paper by Lihan He and Lawrence Carin}
-
-\author{David A. Neal and  Josh Hunsaker}
-
+\author{David A. Neal and Josh Hunsaker}
 
 \begin{document}
 \maketitle
@@ -20,13 +25,121 @@ This is the most rockin-est project this side of the rio grande
 
 Many traditional sensor systems capture large amounts of data and then compress the data for transmission or storage purposes.  Compressive sensing provides an approach for combining the sensing and compressing stages into a single step.  This can provide both cost and efficiency benefits in sensor hardware. In the context of digital image processing, this can provide a way to capture a significantly reduced number of pixels while maintaining the ability to reconstruct the complete image later. Such reconstruction techniques require the use of a basis in which the image is sparse. One common approach is to use wavelet transforms as the basis for the image.
 
-The wavelet transform of most natural images exhibits a ``zero tree'' structure in which the ``children'' of negligible coefficients tend to be negligible as well. In \cite{He09}, the authors develop a statistical algortihm which exploits the zero-tree phenomenon to achieve increased reconstruction accuracy. By imposing a set of Bayesian priors on the wavelet coefficients, the expected structure is imposed statistically, which leads to a more flexible image model.
+The wavelet transform of most natural images exhibits a ``zero tree'' structure in which the ``children'' of negligible coefficients tend to be negligible as well. In \cite{He09}, the authors develop a statistical algorithm which exploits the zero-tree phenomenon to achieve increased reconstruction accuracy. By imposing a set of Bayesian priors on the wavelet coefficients, the expected structure is imposed statistically, which leads to a more flexible image model.
 
-\section{Compressive Sensing and Wavelet Transform}
+\section{Discrete Wavelet Transform}
+
+A wavelet is a 
+Given an orthogonal basis $\Psi$, whose columns $\bfpsi_j$ are discrete wavelets, we can decompose a signal $\bfx$ into a sum of wavelets as follows
+
+\begin{equation}
+  \label{eq:}
+  \bfy = \Psi^T \bfx
+\end{equation}
+
+Each value $y_j$ represents the amount of the wavelet $\bfpsi_j$ present in $\bfx$. This is analogous to the discrete fourier transform, which breaks a signal into its component frequencies. Unlike the fourier transform however, wavelet decompositions of natural signals tend to be sparse.  In other words, many natural signals can be constructed or approximated as the sum of a relatively small number of wavelets.
 
 \section{Wavelet Tree Structure}
 
+
+\section{Compressive Sensing}
+Consider a discrete signal $\bfx$ of length $N$ in which all but $S$ of the values are zero. We say that $\bfx$ is ``$S$-sparse''.  Assume that we have prior knowledge about the sparsity of $\bfx$, but we do not have any specific information about \emph{which} of the samples are non-zero. If we sample $\bfx$ directly, we must take $N$ samples or we risk losing information.
+
+Compressive sensing allows us to exploit the sparsity in $\bfx$ in order to collect less than $N$ data points.  In the absence of measurement noise we are able to reconstruct $\bfx$ perfectly, given sufficient data.
+
+We can also relax our sparsity constraint by considering values that are sufficiently small to be insignificant.  Under this new definition, we will consider a signal to be $S$-sparse if all but $S$ of its values have a magnitude below some threshold $\epsilon$.  The signal is sparse in the sense that almost all of its energy is concentrated at a small number of positions.
+
+\begin{equation}
+  \label{eq:sense}
+  \bfv = \Phi \bftheta
+\end{equation}
+
+
+
 \section{Bayesian Inference}
+
+In a maximum likelihood sense, the goal is to use the samples
+$\mathbf{v}$ to estimate the most likely $\mathbf{\theta}$.  If $p(\mathbf{\theta}|\mathbf{v})$ is known, then the
+maximum likelihood value of $\mathbf{\theta}|\mathbf{v}$ can be
+found.  As in many cases, this density is not known.  The most common
+approach is to apply Bayes' theorem, which yields
+$p(\mathbf{v}|\mathbf{\theta})p(\mathbf{\theta})/p(\mathbf{v})$.  In
+  this case, these densities are also not known, but some things are
+  known about them.
+
+If a density is selected based on what is known , the parameters are
+still unknown.  However, in this case, the problem can be stated as
+$p(\mathbf{\theta},\mathbf{\xi}|\mathbf{v})$, with $\mathbf{\xi}$
+representing a vector of all the density parameters that are not
+known.  Again applying Bayes' theorem, the problem becomes
+$p(\mathbf{v}|\mathbf{\xi},\mathbf{\theta})p(\mathbf{\theta},\mathbf{\xi})/p(\mathbf{v}|\mathbf{\xi})$.
+As in many problems, the denominator is simply a scaling constant and
+does not affect the choice of $\mathbf{\theta}$ and $\mathbf{\xi}$
+that maximize the likelihood.  
+
+Conditionally factoring the result and splitting up $\mathbf{\xi}$
+into the different parameters yields
+
+\begin{equation}
+p(\mathbf{v}|\mathbf{\alpha}_n,\mathbf{\theta})p(\mathbf{\theta}|\mathbf{\mu},\mathbf{\pi},\mathbf{\alpha}_s)p(\mathbf{\alpha}_s)p(\mathbf{\alpha}_n)p(\mathbf{\pi})p(\mathbf{\mu}).
+\label{bayesprimary}
+\end{equation}
+
+In \cite{He09}, they assume that
+$p(\mathbf{v}|\mathbf{\alpha}_n,\mathbf{\theta})$ is distributed Gaussin,
+so $\mathbf{\alpha}_n$ is the precision and the mean $\phi
+\mathbf{\theta}$.  The mean is based on (\ref{eq:sense}) and the
+precision is based on the noise in the measurement, which is
+Gaussian.  They assume that $\mathbf{\theta}$ is a spike
+and slab distribution, which means that some percentage of the time
+outcome is zero and the rest of the time it is a Gaussian draw.  For this distribution,
+$\mathbf{pi}$ represents the probability that the Gaussian draw is
+chosen, $\mathbf{\mu}$ is the mean of that Gaussian, and
+$\mathbf{\alpha}_s$ is the precision.  This is based on the fact that
+$\mathbf{\theta}$ is sparse, so there are many zeros or small
+coefficients, and the rest of the coefficients are assumed to be
+Gaussian based around different means and variances common to their
+scale in the transform (hence the subscript $s$ on
+$\mathbf{\alpha}_s$).
+
+One issue remains to be able to solve this problem.  The distributions of the
+parameters must be determined.  A common distribution for precision
+parameters is the Gamma distribution.  This is a common choice due to
+it being a conjugate distribution to a Gaussian distribution.  This
+means that when it is used as a prior to the Gaussian, as with Bayes'
+theorem, the result is still a Gaussian distribution.  This is
+desirable because it makes solving the problem somewhat easier. 
+
+The distribution on $\mathbf{\pi}$ is set to a Beta distribution.  This
+works well because the two parameters of the Beta distribution can be
+set to pick between them with one providing numbers closer to one and
+the other providing numbers closer to zero.  This can be used to
+weight the choice in the spike and slab distribution between the zero
+and the Gaussian.  
+
+There are means for estimating all the parameters and solving for the
+maximum likelihood solution.  This typically involves some
+significantly difficult math.  In many cases, it is desirable to solve
+the problem directly, but given that for a $128\times128$ image, there
+are $128^2$ elements in many of the vectors, the problem complexity is
+high.  An alternative approach that is typically applied is Gibbs
+sampling.
+
+\subsection{Gibbs Sampling}
+
+Gibbs sampling is an approach for determining a density by sampling
+from it.  If a problem is set up similar to how (\ref{bayesprimary})
+has been found, random draws for each parameter can be used
+flowed to estimate average paramaters and allow for draws from the primary distributions.  In this
+case, the lower level parameter distributions are able to exploit information
+about structure or values and are considered prior distributions.
+Exploiting this prior information is one of the main benefits to selecting a Bayesian approach over
+convex optimization approaches.  
+
+The random draws can be run for a period of time with each iteration
+updating the estimation of the top level parameters. After a burn in
+period, it has been shown that this
+converges to the true distribution \cite{Mackay03}.  The 
 
 \bibliography{report}
 \bibliographystyle{IEEEtran}
