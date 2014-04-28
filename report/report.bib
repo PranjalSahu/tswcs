@@ -106,3 +106,38 @@ ISSN={1053-587X},}
  isbn = {9780521642989},
  abstract={Information theory and inference, taught together in this exciting textbook, lie at the heart of many important areas of modern technology - communication, signal processing, data mining, machine learning, pattern recognition, computational neuroscience, bioinformatics and cryptography. The book introduces theory in tandem with applications. Information theory is taught alongside practical communication systems such as arithmetic coding for data compression and sparse-graph codes for error-correction. Inference techniques, including message-passing algorithms, Monte Carlo methods and variational approximations, are developed alongside applications to clustering, convolutional codes, independent component analysis, and neural networks. Uniquely, the book covers state-of-the-art error-correcting codes, including low-density-parity-check codes, turbo codes, and digital fountain codes - the twenty-first-century standards for satellite communications, disk drives, and data broadcast. Richly illustrated, filled with worked examples and over 400 exercises, some with detailed solutions, the book is ideal for self-learning, and for undergraduate or graduate courses. It also provides an unparalleled entry point for professionals in areas as diverse as computational biology, financial engineering and machine learning.},
  }
+
+@ARTICLE{Candes06b, 
+author={Candes, E.J. and Tao, T.}, 
+journal={Information Theory, IEEE Transactions on}, 
+title={Near-Optimal Signal Recovery From Random Projections: Universal Encoding Strategies?}, 
+year=2006, 
+month={Dec}, 
+volume=52, 
+number=12, 
+pages={5406-5425}, 
+abstract={Suppose we are given a vector f in a class FsubeRopfN , e.g., a class of digital signals or digital images. How many linear measurements do we need to make about f to be able to recover f to within precision epsi in the Euclidean (lscr2) metric? This paper shows that if the objects of interest are sparse in a fixed basis or compressible, then it is possible to reconstruct f to within very high accuracy from a small number of random measurements by solving a simple linear program. More precisely, suppose that the nth largest entry of the vector |f| (or of its coefficients in a fixed basis) obeys |f|(n)lesRmiddotn-1p/, where R>0 and p>0. Suppose that we take measurements yk=langf# ,Xkrang,k=1,...,K, where the Xk are N-dimensional Gaussian vectors with independent standard normal entries. Then for each f obeying the decay estimate above for some 0<p<1 and with overwhelming probability, our reconstruction ft, defined as the solution to the constraints yk=langf# ,Xkrang with minimal lscr1 norm, obeys parf-f#parlscr2lesCp middotRmiddot(K/logN)-r, r=1/p-1/2. There is a sense in which this result is optimal; it is generally impossible to obtain a higher accuracy from any set of K measurements whatsoever. The methodology extends to various other random measurement ensembles; for example, we show that similar results hold if one observes a few randomly sampled Fourier coefficients of f. In fact, the results are quite general and require only two hypotheses on the measurement ensemble which are detailed}, 
+keywords={encoding;linear programming;signal reconstruction;N-dimensional Gaussian vector;linear measurement;linear program;random projection;signal reconstruction;signal recovery;universal encoding strategy;Concrete;Digital images;Encoding;Geometry;Image coding;Image reconstruction;Linear programming;Mathematics;Measurement standards;Vectors;Concentration of measure;convex optimization;duality in optimization;linear programming;random matrices;random projections;signal recovery;singular values of random matrices;sparsity;trigonometric expansions;uncertainty principle}, 
+doi={10.1109/TIT.2006.885507}, 
+ISSN={0018-9448},}
+
+@article{Baraniuk06,
+  title={The Johnson-Lindenstrauss lemma meets compressed sensing},
+  author={Baraniuk, Richard and Davenport, Mark and DeVore, Ronald and Wakin, Michael},
+  journal={Submitted manuscript, June},
+  year=2006
+}
+
+@ARTICLE{Donoho01, 
+author={Donoho, D.L. and Huo, X.}, 
+journal={Information Theory, IEEE Transactions on}, 
+title={Uncertainty principles and ideal atomic decomposition}, 
+year={2001}, 
+month={Nov}, 
+volume={47}, 
+number={7}, 
+pages={2845-2862}, 
+abstract={Suppose a discrete-time signal S(t), 0⩽t<N, is a superposition of atoms taken from a combined time-frequency dictionary made of spike sequences 1{t=τ} and sinusoids exp{2πiwt/N}/√N. Can one recover, from knowledge of S alone, the precise collection of atoms going to make up S? Because every discrete-time signal can be represented as a superposition of spikes alone, or as a superposition of sinusoids alone, there is no unique way of writing S as a sum of spikes and sinusoids in general. We prove that if S is representable as a highly sparse superposition of atoms from this time-frequency dictionary, then there is only one such highly sparse representation of S, and it can be obtained by solving the convex optimization problem of minimizing the l1 norm of the coefficients among all decompositions. Here “highly sparse” means that Nt+Nw<√N/2 where Nt is the number of time atoms, Nw is the number of frequency atoms, and N is the length of the discrete-time signal. Underlying this result is a general l1 uncertainty principle which says that if two bases are mutually incoherent, no nonzero signal can have a sparse representation in both bases simultaneously. For the above setting, the bases are sinusoids and spikes, and mutual incoherence is measured in terms of the largest inner product between different basis elements. The uncertainty principle holds for a variety of interesting basis pairs, not just sinusoids and spikes. The results have idealized applications to band-limited approximation with gross errors, to error-correcting encryption, and to separation of uncoordinated sources. Related phenomena hold for functions of a real variable, with basis pairs such as sinusoids and wavelets, and for functions of two variables, with basis pairs such as wavelets and ridgelets. In these settings, if a function f is representable by a sufficiently sparse superposition of terms taken from both bases, then there is only one such sparse representation; it may be obtained by minimum l1 norm atomic decomposition. The condition “sufficiently sparse” becomes a multiscale condition; for example, that the number of wavelets at level j plus the number of sinusoids in the jth dyadic frequency band are together less than a constant times 2j/2 }, 
+keywords={indeterminancy;signal representation;time-frequency analysis;wavelet transforms;band-limited approximation;convex optimization problem;discrete-time signal length;discrete-time signal representation;dyadic frequency band;error-correcting encryption;ideal atomic decomposition;multiscale condition;mutual incoherence;ridgelets;sinusoids;sparse representation;spike sequences;time-frequency dictionary;uncertainty principles;uncoordinated source separation;wavelets;Cryptography;Dictionaries;Frequency;Harmonic analysis;Matching pursuit algorithms;Signal analysis;Signal representations;Uncertainty;Wavelet packets;Writing}, 
+doi={10.1109/18.959265}, 
+ISSN={0018-9448},}

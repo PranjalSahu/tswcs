@@ -76,7 +76,7 @@ We can also relax our definition of sparsity by considering any values that are 
 
 \subsection{Image Transform}
 
-In the case of image data, we have no guarantee of sparsity. In fact, for most interesting images the data will tend not to be sparse. This would seem to suggest that image data is not a good candidate for compressive sensing. However, as mentioned in section~\ref{sec:wavelets}, wavelets provide a basis in which most images have a sparse representation.  This means that if we had a way of sensing the wavelet coefficients instead of the pixel values, we would be sampling a sparse signal.
+When working with image data, we have no guarantee of sparsity. In fact, for most interesting images the data will tend not to be sparse. This would seem to suggest that image data is not a good candidate for compressive sensing. However, as mentioned in section~\ref{sec:wavelets}, wavelets provide a basis in which most images have a sparse representation.  This means that if we had a way of sensing the wavelet coefficients instead of the pixel values, we would be sampling a sparse signal.
 
 Consider a new sensing matrix
 \begin{equation}
@@ -100,9 +100,27 @@ This means that sensing the image data with $\Phi^\prime$ is the same as sensing
 \subsection{Incoherent Sampling}
 \label{sub:incoherence}
 
+It has been demonstrated \cite{Candes06b,Baraniuk06} that for compressive sensing of sparse signals, taking random measurements is in some sense an optimal strategy. For example, the rows of the sensing matrix $\Phi$ may be a collection random test vectors ${\phi_k}$ such as gaussian white noise or a series of bernoulli random variables.
 
+Under such a sensing scheme, the number of samples required will be inversely proportional to the similarity between the sensing modality ($\Phi$) and the signal model ($\Psi$).  We can estimate this similarity by measuring the mutual coherence $\mu(\cdot)$ as follows \cite{Donoho01,Candes06}
+
+\begin{equation}
+  \label{eq:coherence}
+  \mu(\Phi \Psi) = \underset{k,j}{max}| \langle \phi_k, \psi_j \rangle | .
+\end{equation}
+
+In the implementation of this project, we have constructed the rows of $\Phi$ as a series of bernoulli random variables.  We found the mutual coherence between our sensing matrix and our wavelet basis to be around 2.75.  While it is possible to construct a sensing matrix whose coherence with the wavelet basis is ideal ($\mu(\Phi \Psi)=1$), such matrices are almost always complex-valued which would significantly complicate the algorithm being used.
 
 \subsection{Reconstruction}
+
+The most straightforward way to reconstruct a sparse signal from compressed samples is via an $\ell_1$ minimization known as \emph{basis pursuit}.  By solving the simple convex optimization problem
+
+\begin{equation}
+  \label{eq:bp}
+  \bftheta = \underset{\tilde\bftheta}{\arg \min}\; \|\tilde\bftheta\|_{\ell_1}\; \text{s.t.} \; \bfv = \Psi \tilde\bftheta ,
+\end{equation}
+
+we acquire the coefficient vector $\bftheta$ with minimum $\ell_1$ norm which satisfies the measurement data.  Since the $\ell_1$ norm emphasizes sparsity, we are essentially solving for the sparsest vector that can explain the data.
 
 \section{Bayesian Inference}
 
