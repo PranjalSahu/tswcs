@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage{parskip}
 \usepackage{graphicx}
+\usepackage{subfig}
 % \usepackage[margin=1in]{geometry}
 
 \newcommand{\bfu}{\mathbf{u}}
@@ -57,6 +58,13 @@ Figure~\ref{fig:tree} shows an example of this tree structure in a transformed i
 ($s = 0$) represents scaling coefficients, and other regions are wavelet coefficients}
 \label{fig:tree}
 \end{figure}
+
+\begin{figure*}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{lenna_wavelet}
+  \caption{Example of multi-level wavelet transform. The original image is on the left, with the transformed image on the right.}
+  \label{fig:lenna}
+\end{figure*}
 
 \section{Compressive Sensing}
 
@@ -402,6 +410,128 @@ $||\mathbf{x}-\hat{\mathbf{x}}\\_2/||\mathbf{x}||_2$, where
     $\mathbf{x}$ is the original image and $\hat{\mathbf{x}}$ is the
 recovered image.  The images used were natural images from Microsoft
 Research and are available at http://research.microsoft.com/en-us/projects/objectclassrecognition/.
+Several plots and tables taken from the original article are presented
+and discussed here as a summary of the algorithm performance.
+
+The results show that the algorithm outperforms all the algorithms
+with which it was compared in the sense that the mean and standard
+deviation are smaller for $2000$ and $6000$ samples, as seen in
+Figures \ref{table1} and \ref{table2}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_results_m2000}
+  \caption{Results from He and Carin paper for $2000$ samples}
+  \label{table1}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_results_m6000}
+  \caption{Results from He and Carin paper for $6000$ samples}
+  \label{table2}
+\end{figure}
+
+
+Figure \ref{accplot}  shows that the
+relative reconstruction error is smaller over all tested numbers of
+measurements. 
+ 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_merror_plot}
+  \caption{Measurement Error versus Number of Measurements from He and Carin paper}
+  \label{accplot}
+\end{figure}
+
+Figure \ref{cputime} shows the amount of time that each algorithm ran.  It is
+most interesting that the speed did not appreciably decrease when more
+samples were drawn, while most of the other algorithms appear to
+slow down significantly as the number of samples increases.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_speed}
+  \caption{Algorithm CPU Time versus Number of Measurements from He and Carin paper}
+  \label{cputime}
+\end{figure}
+
+Comparison of the estimated wavelet coefficients provides some
+insight.  Figure \ref{wave1} shows the coefficients with $2000$
+samples.  The red is the true values.  Most of the estimators have
+many non-zero large coefficients as the coefficient index increases,
+while only TSW-CS has set them to zero.  While this introduces error
+by ignoring some significant coefficients, Figure \ref{wave2} shows
+the superior matching for the earlier coefficients.  Between this and
+the large magnitude of the estimates at higher indicies for other
+algorithms, the smaller error is easy to understand.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_wavelet_whole}
+  \caption{Comparison of All Wavelet Coefficients for each Algorithm
+    with $2000$ Measurements}
+  \label{wave1}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_wavelet_s1and2}
+  \caption{Comparison of Scale 1 and 2 Wavelet Coefficients for each Algorithm with $2000$ Measurements}
+  \label{wave2}
+\end{figure}
+
+When the number of measurments is increased to $6000$, the match is
+even better, as shown in Figure \ref{wave3}.  The algorithm starts to
+pick up the significant values at the higher indicies as well.  This
+is also more apparent in other algorithms.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_wavelet_6000}
+  \caption{Comparison of All Wavelet Coefficients for each Algorithm
+    with $6000$ Measurements}
+  \label{wave3}
+\end{figure}
+
+In order to emphasize the improvement with more samples, Figure
+\ref{wave4} shows the error bars on just the first $50$ estimated
+coefficients.  As can be seen, the error bars decrease significantly
+as the number of measurements goes up.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\linewidth]{he_carin_errorbars}
+  \caption{Error Bars for the first $50$ coefficients with various
+    numbers of measurements}
+  \label{wave4}
+\end{figure}
+
+\begin{figure*}[ht]
+  \centering
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{lenna_m2000_cvx}%
+  }%
+  \qquad
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{urban_m2000_cvx}%
+  } \\
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{cows_m2000_cvx}%
+  }%
+  \qquad
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{building_m2000_cvx}%
+  } \\
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{flowers_m2000_cvx}%
+  }%
+  \qquad
+  \subfloat[][]{%
+    \includegraphics[width=0.4\textwidth]{office_m2000_cvx}%
+  }
+  \caption{Results of six trials of basis pursuit using 2000 data samples from a $128\times128$ image}
+\end{figure*}
 
 \bibliography{report}
 \bibliographystyle{IEEEtran}
