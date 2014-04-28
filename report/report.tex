@@ -1,14 +1,15 @@
 \documentclass{IEEEtran}
+\usepackage{amsmath}
 \usepackage{parskip}
+\usepackage{graphicx}
 % \usepackage[margin=1in]{geometry}
 
+\newcommand{\bfu}{\mathbf{u}}
+\newcommand{\bfv}{\mathbf{v}}
 \newcommand{\bfx}{\mathbf{x}}
 \newcommand{\bfy}{\mathbf{y}}
-\newcommand{\bfv}{\mathbf{v}}
 \newcommand{\bfpsi}{\mathbf{\psi}}
 \newcommand{\bftheta}{\mathbf{\theta}}
-
-
 
 \title{Tree-Structured Wavelet Compressive Sensing}
 
@@ -27,34 +28,81 @@ Many traditional sensor systems capture large amounts of data and then compress 
 
 The wavelet transform of most natural images exhibits a ``zero tree'' structure in which the ``children'' of negligible coefficients tend to be negligible as well. In \cite{He09}, the authors develop a statistical algorithm which exploits the zero-tree phenomenon to achieve increased reconstruction accuracy. By imposing a set of Bayesian priors on the wavelet coefficients, the expected structure is imposed statistically, which leads to a more flexible image model.
 
-\section{Discrete Wavelet Transform}
+\section{Wavelet Transforms Of Natural Images}
+\label{sec:wavelets}
 
-A wavelet is a 
-Given an orthogonal basis $\Psi$, whose columns $\bfpsi_j$ are discrete wavelets, we can decompose a signal $\bfx$ into a sum of wavelets as follows
+
+\subsection{Discrete Wavelet Transform}
+
+A wavelet is a wave-like signal which has finite length. Wavelets are often used to model natural phenomena of finite duration.  While many wavelets are continuous and differentiable, we can also construct a class of wavelets which are discretely sampled for analysis of discrete signals.
+
+Consider an orthogonal basis $\Psi$, whose columns $\bfpsi_j$ are discrete wavelets, we can decompose a signal $\bfx$ into a sum of wavelets as follows
 
 \begin{equation}
-  \label{eq:}
-  \bfy = \Psi^T \bfx
+  \label{eq:dwt}
+  \bftheta = \Psi^T \bfx
 \end{equation}
 
-Each value $y_j$ represents the amount of the wavelet $\bfpsi_j$ present in $\bfx$. This is analogous to the discrete fourier transform, which breaks a signal into its component frequencies. Unlike the fourier transform however, wavelet decompositions of natural signals tend to be sparse.  In other words, many natural signals can be constructed or approximated as the sum of a relatively small number of wavelets.
+Each value $\theta_j$ represents the amount of the wavelet $\bfpsi_j$ present in $\bfx$. This is analogous to the discrete fourier transform, which breaks a signal into its component frequencies. Unlike the fourier transform however, wavelet transforms simultaneously capture both frequency and spacial information. Also, wavelet decompositions of natural signals tend to be sparse.  In other words, many natural signals can be constructed or approximated as the sum of a relatively small number of wavelets.
 
-\section{Wavelet Tree Structure}
+\subsection{Wavelet Tree Structure}
+Discrete wavelet transforms of images have another property which may be exploited, which is the statistical relationship that exists between certain coefficients of the transform. The coefficients can be organized into a quadtree structure in which most coefficients serve as the parent for four other child coefficients. Within this structure, the coefficients which are the ``children'' of negligible coefficients will also be negligible with high probability.
 
+Figure~\ref{fig:tree} shows an example of this tree structure in a transformed image.  The coefficients at scale $s=0$ serve as scaling coefficients for the coefficient trees, which each have their root node at scale $s=1$. The leaf nodes at the finest scale ($s=3$ in this example) represent the high-pass elements of the image.
+
+\begin{figure}
+  \centering
+  \includegraphics{wavelet_tree}
+  \caption{Wavelet decomposition of an image, showing the tree structure. The top-left block
+($s = 0$) represents scaling coefficients, and other regions are wavelet coefficients}
+\label{fig:tree}
+\end{figure}
 
 \section{Compressive Sensing}
-Consider a discrete signal $\bfx$ of length $N$ in which all but $S$ of the values are zero. We say that $\bfx$ is ``$S$-sparse''.  Assume that we have prior knowledge about the sparsity of $\bfx$, but we do not have any specific information about \emph{which} of the samples are non-zero. If we sample $\bfx$ directly, we must take $N$ samples or we risk losing information.
 
-Compressive sensing allows us to exploit the sparsity in $\bfx$ in order to collect less than $N$ data points.  In the absence of measurement noise we are able to reconstruct $\bfx$ perfectly, given sufficient data.
+\subsection{Sparse Signals}
+Consider a discrete signal $\bfy$ of length $N$ in which all but $S$ of the values are zero. We say that $\bfy$ is ``$S$-sparse''.  Assume that we have prior knowledge about the sparsity of $\bfy$, but we do not have any specific information about \emph{which} of the samples are non-zero. If we sample $\bfy$ directly, we must take $N$ samples or we risk losing information.
 
-We can also relax our sparsity constraint by considering values that are sufficiently small to be insignificant.  Under this new definition, we will consider a signal to be $S$-sparse if all but $S$ of its values have a magnitude below some threshold $\epsilon$.  The signal is sparse in the sense that almost all of its energy is concentrated at a small number of positions.
+Compressive sensing allows us to exploit the sparsity in $\bfy$ in order to collect less than $N$ data points.  In the absence of measurement noise we are able to reconstruct $\bfy$ perfectly, given sufficient data samples. Let $\Phi$ be a sensing matrix of size $M \times N$ with $M \ll N$. The following equation represents the compressive sampling operation:
 
 \begin{equation}
   \label{eq:sense}
-  \bfv = \Phi \bftheta
+  \bfv = \Phi \bfy
 \end{equation}
 
+Now $\bfv$ is significantly smaller than $\bfy$ but should still contain enough information to reconstruct $\bfy$, as long as $\Phi$ is known. Of course, this depends upon $\bfy$ being sufficiently sparse, and upon $\Phi$ being chosen appropriately (which we will discuss in more detail in \ref{sub:incoherence}.)
 
+We can also relax our definition of sparsity by considering any values that are sufficiently small to be insignificant.  Under this new definition, we will consider a signal to be $S$-sparse if all but $S$ of its values have a magnitude below some threshold $\epsilon$.  The signal is sparse in the sense that almost all of its energy is concentrated in a relatively small number of samples.  While such an assumption may lead to some error in the reconstruction, the energy in the error will be proportional to the energy in the negligible coefficients.
+
+\subsection{Image Transform}
+
+In the case of image data, we have no guarantee of sparsity. In fact, for most interesting images the data will tend not to be sparse. This would seem to suggest that image data is not a good candidate for compressive sensing. However, as mentioned in section~\ref{sec:wavelets}, wavelets provide a basis in which most images have a sparse representation.  This means that if we had a way of sensing the wavelet coefficients instead of the pixel values, we would be sampling a sparse signal.
+
+Consider a new sensing matrix
+\begin{equation}
+  \label{eq:newsense}
+  \Phi^\prime = \Phi \Psi^T
+\end{equation}
+
+If we apply $\Phi^\prime$ to the image data $\bfx$, we get
+
+\begin{equation}
+  \label{eq:newsenseapplied}
+  \begin{split}
+  \bfv &= \Phi^\prime \bfx \\
+  &= \Phi \Psi^T \bfx \\
+  &= \Phi \bftheta
+  \end{split}
+\end{equation}
+
+This means that sensing the image data with $\Phi^\prime$ is the same as sensing the (sparse) transform coefficients with $\Phi$.  Therefore, by using the measurements $\bfv$, we should be able to reconstruct the coefficient data and, by extension, the image.
+
+\subsection{Incoherent Sampling}
+\label{sub:incoherence}
+
+
+
+\subsection{Reconstruction}
 
 \section{Bayesian Inference}
 
@@ -139,7 +187,203 @@ convex optimization approaches.
 The random draws can be run for a period of time with each iteration
 updating the estimation of the top level parameters. After a burn in
 period, it has been shown that this
-converges to the true distribution \cite{Mackay03}.  The 
+converges to the true distribution \cite{Mackay03}.  Since the true
+distribution of $\mathbf{\theta}$ given its parameters has been determined, a series of random samples can be drawn
+and the maximum likelihood value can be estimated from the
+distribution.
+
+\subsection{Implemented Gibbs Sampling}
+
+In order to implement the Gibbs sampling approach for this model, the
+actual prior probabilities for the parameters had to be
+determined. Each parameter makes use of the prior information
+available to it and the structure that the model is imposing on it.
+
+The first thing to consider is the structure of the model.  The
+goal is to find $\mathbf{\theta}$, but the structure of the wavelet
+transform needs to be exploited.  Since the structure of the wavelet
+transform changes with the scale, it is important to consider the
+scale of each element of $\mathbf{\theta}$.  As such, the model bases
+all of the parameters on the scale.  They also look at each element of
+each scale individually.  
+
+The data is used to help determine the noise precision
+$\mathbf{alpha}_n$.  Since this noise is due to things like
+measurement noise, it does not change with scale or element, so there
+is only one value.  The distribution is given as 
+\begin{equation}
+ p(\alpha_n^{(j)}|-) =
+    \Gamma(a_0+N/2,b_0+\|(\mathbf{v}-\phi\mathbf{\theta}^{(j)})\|/2 .
+\label{alphan}
+\end{equation}
+The Gamma distribution has a $a_0$ and $b_0$ as $10^{-6}$ to keep the
+arguments away from zero.  The $N$ value is the number of elements in
+$\mathbf{\theta}$, while the vectpr-matrix value in the second
+parameter is the mean-square error divided by two.  When the error is
+small, the large number for the first parameter means that values of
+$\mathbf{alpha}_n$ will most likely be large.  This makes sense, since
+the estimate is close and the noise is probably small.  As the error
+increases in size, the estimate of the noise is more likely to be
+large, but is still evenly balanced with potentially small values.
+This both exploits information from the data $\mathbf{v}$ and changes
+its value based on the amount of error in the current estimation.
+
+For the estimation of $\mathbf{\alpha}_s$, the $s$ subscript indicates
+that the value is changing at each scale.  The distribution is given
+as 
+\begin{equation}
+    p(\alpha_s^{(j)}|-) =  \Gamma(c_0+0.5\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}\neq
+    0), d_0+0.5\sum_{i=1}^{M_s}\theta_{s,i}^{2,(j)})).
+\label{alphas}
+\end{equation}
+Again, the values of $c_0$ and $d_0$ are set to $10^{-6}$.  The value
+of $M_s$ is the number of elements at scale $s$.  The
+$\mathbf{1}(x)$ is zero if $x$ is false and one if $x$ is true.  So
+the first argument is counting the number of non-zero elements in
+$\mathbf{\theta}$ at scale $s$ and element number $i$ and the
+second is counting the squared magnitude of those elements.  This
+means that when the values are small, the precision will tend to be
+large, but when the elements are large, the precision can be smaller.
+This allows for variation across the elements relative to their
+magnitude.
+
+The final parameter to draw for is $\mathbf{\pi}$.  This parameter
+determines the probabilility of an element being from the zero
+distribution or the Gaussian distribution when drawing for
+$\mathbf{\theta}$.  The scale zero elements are typically non-zero, as
+these are scaling elements for the entire image, so those elements are
+set to $1$.  These probabilities are also related to the parent-child
+relationships in the transform, so they change with scale.
+Additionally, the scale $1$ elements have no parents.  This results in
+the distribution for $s=1$ being given as
+\begin{equation}
+    p(\pi_r^{(j)}|-)  = 
+    \beta(e_0^r+\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}\neq
+    0), f_0^r +\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}= 0)).
+\label{pir}
+\end{equation}
+Here, $e_0^r = .9M_s$ and $f_0^r = .1M_s$.  The two indicator functions compare the number of elements that are
+non-zero for the first argument and that are zero for the second.
+When the first argument is larger, the Beta distribution selects a probability tends toward $1$
+and when the second is, it tends toward $0$.  This effectively selects
+a probability based on the current estimate of $\mathbf{\theta}$.
+
+For scales larger than $1$, there are two distributions.  The first is
+\begin{equation}
+  \begin{array}{ccc}
+    p(\pi_s^{0,(j)}|-) & = &
+    \beta(e_s^{s0}+\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}\neq
+    0,\theta_{pa(s,i)}^{(j)}= 0), \\
+    & & f_s^{s0} +\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}=
+    0,\theta_{pa(s,i)}^{(j)}= 0)),
+  \end{array}
+\label{pir0}
+\end{equation}
+which draws for the case where the parent of the $s,i$th element is
+zero and the other is
+\begin{equation}
+  \begin{array}{ccc}
+    p(\pi_s^{(1,j)}|-) & = & 
+    \beta(e_s^{s1}+\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}\neq
+    0,\theta_{pa(s,i)}^{1,(j)}\neq 0), \\
+    & & f_s^{s1}+\sum_{i=1}^{M_s}\mathbf{1}(\theta_{s,i}^{(j)}=
+    0,\theta_{pa(s,i)}^{(j)}\neq 0)),
+  \end{array}
+\label{pi0}
+\end{equation}
+which draws for the case where the parent is non-zero.  In these
+equations, $e_0^{s0} = M_s/N$, $f_0^{s0} = (1-1/N)M_s$, $e_0^{s1} =
+.5M_s$, and $f_0^{s1} = .5M_s$. Again, the
+balance in the equation is set to draw a probability based on the what
+the number of zero versus non-zero elements suggests.  Then, for each
+$s,i$, the value for $\pi_{s,i}$ is selected from these two by
+\begin{equation}
+  \begin{array}{ccc}
+     
+    & & \\
+    \pi_{s,i}^{(j)} &= & \left\{ 
+    \begin{array}{ccc}
+      %\pi_{sc} & if & s= 0 \\
+     % \pi_r^{(j)} & if & s = 1  \\ 
+      \pi_s^{0,(j)} & if & 2 \leq s \leq L, \theta_{pa(s,i)} = 0  \\ 
+      \pi_s^{1,(j)} & if & 2 \leq s \leq L, \theta_{pa(s,i)} \neq= 0 
+    \end{array} \right. \\
+  \end{array}
+\label{pichoose}
+\end{equation}
+
+Now, in order to draw for each $\theta_{s,i}$, the value for the mean,
+precision, and $\pi$ must be estimated for that specific element.
+This can be determined by taking an expected value for the theta with
+respect to the specific elements.  The result is
+
+\begin{equation}
+    \tilde{\alpha}_{s,i} = \alpha_s + \alpha_n
+    \mathbf{\phi}_m^T\mathbf{\phi}_m,
+\label{alphatilde}
+\end{equation}
+\begin{equation}
+    \tilde{\mu}_{s,i} = 
+    \tilde{\alpha}_{s,i}^{-1}\alpha_n\mathbf{\phi}_m^T(\mathbf{v}-\sum_{k=1,k\neq
+      m}^N\mathbf{\phi}_k\theta_k)
+\label{mutilde}
+\end{equation}
+\begin{equation}
+  \begin{array}{cc}
+    \tilde{\pi}_{s,i}   =  1, s = 0\\
+    \frac{\tilde{\pi}_{s,i}}{1-\tilde{\pi}_{s,i}}  =
+    \frac{\pi_{s,i}}{1-\pi_{s,i}}\frac{\mathcal{N}(0,\alpha_s^{-1})}{\mathcal{N}(\tilde{\mu}_{s,i},\tilde{\alpha}_{s,i}^{-1})},
+    &1 \leq s \leq L.
+  \end{array}
+\label{pitilde}
+\end{equation}
+Here, $\mathbf{\phi}_m$ is the $m$th column of $\phi$ and $\theta_k$ is
+the $k$th element of $\mathbf{\theta}$.  
+
+These estimations of the
+parameters of $\theta_{s,i}$ can then be used to draw from 
+\begin{equation}
+    p(\theta_{s,i}|-)  = 
+    (1-\tilde{\pi}_{s,i})\delta_0+\tilde{\pi}_{s,i}\mathcal{N}(\tilde{\mu}_{s,i},\tilde{\alpha}_{s,i}^{-1}),
+\label{thetatilde}
+\end{equation}
+
+\section{Algorithm}
+
+The actual algorithm for the model is not calculated in the order
+given above, as the updates and draws occur relative to a sample of
+$\mathbf{\theta}$.  The algorithm is run by initializing a value for
+each $\theta_{s,i}$.  This is then used to initialize the random draws
+in (\ref{alphan}-\ref{pichoose}).  These values are then used with the
+initial $\theta_{s,i}$ to initialize the estimates for
+(\ref{alphatilde}-\ref{pitilde}).
+
+Once this initialization takes place, the algorithm loops by drawing a
+new set of $\theta_{s,i}$ from (\ref{thetatilde}), updating the
+estimates for the parameters in (\ref{alphatilde}-\ref{pitilde}), and
+then drawing new values from (\ref{alphan}-\ref{pichoose}).
+
+In the paper, they found that this converges to the true distribution
+in about $200$ iterations.  After this, they found that $100$ samples
+was sufficient to estimate $\mathbf{\theta}$ accurately.
+
+In the paper, they note that this can be drawn sequentially by drawing
+for each $(s,i)$ and then incorporating it into the draw for $(s,i+1)$.  It can also be drawin
+in a block method, drawing all the $\theta_{s,i}$ at once.  Drawing
+sequentially converges faster since the newer data is better and is
+incorporated earlier into the updates.
+
+\section{Results}
+
+In this paper, the algorithm proposed was compared with seven recently
+developed algorithms.  The mean and variance for each algorithm was
+calculated and the algorithm was run in Matlab.  All examples used
+$128\times128$ images and set scale zero as an $8\times8$.  The
+calculated relative reconstruction error was found by
+$||\mathbf{x}-\hat{\mathbf{x}}\\_2/||\mathbf{x}||_2$, where
+    $\mathbf{x}$ is the original image and $\hat{\mathbf{x}}$ is the
+recovered image.  The images used were natural images from Microsoft
+Research and are available at http://research.microsoft.com/en-us/projects/objectclassrecognition/.
 
 \bibliography{report}
 \bibliographystyle{IEEEtran}
@@ -151,3 +395,7 @@ converges to the true distribution \cite{Mackay03}.  The
 %%% mode: latex
 %%% TeX-master: t
 %%% End: 
+
+
+
+%  LocalWords:  compressive
